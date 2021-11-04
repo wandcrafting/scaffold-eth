@@ -17,23 +17,23 @@ contract Staker {
   
   modifier onlyAfterDeadline() {
     require(now > deadline);
-    _;
+    _ ;
   }
 
   constructor(address exampleExternalContractAddress) public {
     exampleExternalContract = ExampleExternalContract(exampleExternalContractAddress);
   }
   
-  function stake(address _address, uint256 _ether) public payable {
-    require(_address != address(0));
-    require(_ether > 0);
-    balances[_address] += _ether;
-    contract_balance += _ether;
-    emit Stake(_address, _ether);
+  function stake() public payable {
+    require(msg.sender != address(0));
+    require(msg.value > 0);
+    balances[msg.sender] += msg.value;
+    contract_balance += msg.value;
+    emit Stake(msg.sender, msg.value);
   }
   
   function execute() onlyAfterDeadline public {
-    if (contract_balance == threshold) {
+    if (contract_balance >= threshold) {
       uint256 amount = contract_balance;
       contract_balance = 0;
       exampleExternalContract.complete{value: amount}();
@@ -42,19 +42,21 @@ contract Staker {
     }
   }
   
-  function withdraw() onlyAfterDeadline public payable {
+  function withdraw() onlyAfterDeadline public {
     require(openForWithdraw);
-    amount = balances[msg.sender];
+    uint256 amount = balances[msg.sender];
     balances[msg.sender] = 0;
-    (bool sent, ) = msg.sender.call{value: amount}();
+    contract_balance -= amount;
+    (bool sent, ) = msg.sender.call{value: amount}("");
     require(sent, "Failed to send Ether");
   }
   
   function timeLeft() public view returns (uint256) {
     if (now >= deadline) {
       return 0;
+    } else {
+      return deadline - now;
     }
-    return deadline - now;
   }
   
 }
