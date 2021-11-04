@@ -20,11 +20,16 @@ contract Staker {
     _ ;
   }
 
+  modifier notCompleted() {
+    require(exampleExternalContract.completed() == false);
+    _ ;
+  }
+
   constructor(address exampleExternalContractAddress) public {
     exampleExternalContract = ExampleExternalContract(exampleExternalContractAddress);
   }
   
-  function stake() public payable {
+  function stake() public payable notCompleted {
     require(msg.sender != address(0));
     require(msg.value > 0);
     balances[msg.sender] += msg.value;
@@ -32,7 +37,7 @@ contract Staker {
     emit Stake(msg.sender, msg.value);
   }
   
-  function execute() onlyAfterDeadline public {
+  function execute() onlyAfterDeadline notCompleted public {
     if (contract_balance >= threshold) {
       uint256 amount = contract_balance;
       contract_balance = 0;
@@ -42,7 +47,7 @@ contract Staker {
     }
   }
   
-  function withdraw() onlyAfterDeadline public {
+  function withdraw() notCompleted onlyAfterDeadline public {
     require(openForWithdraw);
     uint256 amount = balances[msg.sender];
     balances[msg.sender] = 0;
