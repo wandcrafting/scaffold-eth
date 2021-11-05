@@ -12,6 +12,7 @@ contract Staker {
   uint256 public deadline = now + 30 seconds;
   uint256 public contract_balance = 0;
   bool public openForWithdraw = false;
+  bool public lock;
 
   event Stake(address _address, uint256 _ether);
   
@@ -23,6 +24,13 @@ contract Staker {
   modifier notCompleted() {
     require(exampleExternalContract.completed() == false);
     _ ;
+  }
+
+  modifier mutex {
+      require(!lock);
+      lock = true;
+      _;
+      lock = false;
   }
 
   constructor(address exampleExternalContractAddress) public {
@@ -37,7 +45,7 @@ contract Staker {
     emit Stake(msg.sender, msg.value);
   }
   
-  function execute() onlyAfterDeadline notCompleted public {
+  function execute() onlyAfterDeadline notCompleted mutex public {
     if (contract_balance >= threshold) {
       uint256 amount = contract_balance;
       contract_balance = 0;
