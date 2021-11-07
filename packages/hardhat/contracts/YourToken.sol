@@ -7,3 +7,4 @@ contract YourToken {
     //ToDo: add constructor and mint tokens for deployer,
     //you can use the above import for ERC20.sol. Read the docs ^^^
 }
+//
