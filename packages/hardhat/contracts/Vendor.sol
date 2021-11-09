@@ -36,6 +36,3 @@ contract Vendor is Ownable{
   }
  
 }
-
-
-  //ToDo: create a sellTokens() function:
