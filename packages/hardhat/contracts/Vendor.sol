@@ -34,5 +34,21 @@ contract Vendor is Ownable{
     (bool sent, ) = msg.sender.call{value: amountOfETH}("");
     require(sent, "Failed to send Ether");
   }
- 
+  
+  function sellTokens(uint256 numTokens) public {
+    require(numTokens > 0, "Specify an amount of token greater than zero");
+
+    uint256 userBalance = yourToken.balanceOf(msg.sender);
+    require(userBalance >= numTokens, "Your balance is lower than the amount of tokens you want to sell");
+
+    uint256 amountOfETHToTransfer = numTokens / tokensPerEth;
+    uint256 ownerETHBalance = address(this).balance;
+    require(ownerETHBalance >= amountOfETHToTransfer, "Vendor has not enough funds to accept the sell request");
+
+    (bool sent) = yourToken.transferFrom(msg.sender, address(this), numTokens);
+    require(sent, "Failed to transfer tokens from user to vendor");
+
+    (bool sent,) = msg.sender.call{value: numTokens}("");
+    require(sent, "Failed to send Ether");
+  } 
 }
