@@ -28,11 +28,14 @@ contract Vendor is Ownable{
     
     emit BuyTokens(msg.sender, msg.value, amountOfTokens);
   }
+
+  function withdraw(uint256 amountOfETH) public onlyOwner {
+    require(amountOfETH <= address(this).balance, "Not Enough Ether");
+    (bool sent, ) = msg.sender.call{value: amountOfETH}("");
+    require(sent, "Failed to send Ether");
+  }
  
 }
 
 
   //ToDo: create a sellTokens() function:
-
-  //ToDo: create a withdraw() function that lets the owner, you can 
-  //use the Ownable.sol import above:
